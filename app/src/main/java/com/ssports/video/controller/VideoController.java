@@ -5,13 +5,12 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.gesture.Gesture;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.Settings;
-import android.support.v4.view.GestureDetectorCompat;
+import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -26,18 +25,15 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 import com.example.admin.videocontroller.R;
 import com.ssports.video.utils.BritenessUtils;
-import com.ssports.video.utils.GestureDetector;
 import com.ssports.video.utils.ScreenUtils;
 import com.ssports.video.utils.TimeUtils;
 import com.ssports.video.utils.VolumeUtils;
 import com.ssports.video.view.UniVideoView;
 
-import java.security.PrivateKey;
 
 //播放器适配mediaController
 public class VideoController extends FrameLayout {
@@ -163,7 +159,7 @@ public class VideoController extends FrameLayout {
         }
         currentPosition = itemVideoView.getCurrentPosition();
         totalPosition = itemVideoView.getDuration();
-        Log.e("-----------", currentPosition+"" );
+        Log.e("-----------", currentPosition + "");
         mCurrent.setText(TimeUtils.stringForTime(currentPosition));
         mTotal.setText(TimeUtils.stringForTime(totalPosition));
         mProgress.setMax(totalPosition);
@@ -488,28 +484,6 @@ public class VideoController extends FrameLayout {
     }
 
 
-    public void onResume() {
-        if (itemVideoView != null && currentPosition > 0 && !isPause) {
-            itemVideoView.start();
-            itemVideoView.seekTo(currentPosition);
-        }
-
-    }
-
-    public void onStop() {
-        if (itemVideoView != null && itemVideoView.isPlaying()) {
-            itemVideoView.pause();
-        }
-    }
-
-
-    public void onDestroy() {
-        if (itemVideoView != null) {
-            itemVideoView.stopPlayback();
-            itemVideoView = null;
-        }
-    }
-
 
     //展示当前的进度
     protected Dialog mProgressDialog;
@@ -572,7 +546,6 @@ public class VideoController extends FrameLayout {
             mVolumeDialog.getWindow().addFlags(16);
             mVolumeDialog.getWindow().setLayout(-2, -2);
             WindowManager.LayoutParams localLayoutParams = mVolumeDialog.getWindow().getAttributes();
-//            localLayoutParams.gravity = 19;
             localLayoutParams.x = mSceenWidth_2 * 2 - 48;
             localLayoutParams.y = 40;
             mVolumeDialog.getWindow().setAttributes(localLayoutParams);
@@ -622,6 +595,67 @@ public class VideoController extends FrameLayout {
     public void dismissBritenessDialog() {
         if (mBritenessDialog != null) {
             mBritenessDialog.dismiss();
+        }
+    }
+
+
+   @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle extralBundle = new Bundle();
+        Log.e("----", itemVideoView.getCurrentPosition()+"" );
+        if (itemVideoView != null && itemVideoView.isPlaying()) {
+            currentPosition = itemVideoView.getCurrentPosition();
+            extralBundle.putBoolean("isPause", isPause);
+            extralBundle.putInt("currentPosition", currentPosition);
+            return extralBundle;
+        }
+        return super.onSaveInstanceState();
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        super.onRestoreInstanceState(state);
+        Bundle extralBundler = (Bundle) state;
+        isPause = extralBundler.getBoolean("isPause");
+        currentPosition = extralBundler.getInt("currentPosition", 0);
+    }
+
+
+
+
+    public void onResume() {
+        if (itemVideoView != null && currentPosition > 0 && !isPause) {
+            itemVideoView.start();
+            itemVideoView.seekTo(currentPosition);
+            UIHandler.sendEmptyMessage(TIME_PROGRESS);
+            UIHandler.sendEmptyMessage(SHOW_HIDE_CONTROLLER);
+        }
+
+    }
+
+    public void onPause() {
+        if (itemVideoView != null && itemVideoView.isPlaying()) {
+            currentPosition = itemVideoView.getCurrentPosition();
+
+            Log.e("-------", "onPause: "+itemVideoView.getCurrentPosition() );
+        }
+    }
+
+
+    public void onStop() {
+        if (itemVideoView != null && itemVideoView.isPlaying()) {
+            UIHandler.removeMessages(TIME_PROGRESS);
+            UIHandler.removeMessages(SHOW_HIDE_CONTROLLER);
+            itemVideoView.pause();
+        }
+    }
+
+
+    public void onDestroy() {
+        if (itemVideoView != null) {
+            itemVideoView.stopPlayback();
+            itemVideoView = null;
         }
     }
 

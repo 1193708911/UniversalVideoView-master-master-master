@@ -3,6 +3,8 @@ package com.ssports.video;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 
 import com.example.admin.videocontroller.R;
 import com.ssports.video.controller.VideoController;
@@ -20,15 +22,23 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initView();
     }
+
     private void initView() {
-        mVideView =findViewById(R.id.videView);
+        mVideView = findViewById(R.id.videView);
         mVideView.setUpVideoUrl(VIDEO_URL, VIDEO_PIC);
     }
+
 
     @Override
     protected void onResume() {
         super.onResume();
         mVideView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mVideView.onPause();
     }
 
     @Override
