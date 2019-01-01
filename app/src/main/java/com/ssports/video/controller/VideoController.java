@@ -60,14 +60,13 @@ public class VideoController extends FrameLayout {
     private String videoPic;
     private float mDownX;
     private float mDownY;
-    private float currentX;
-    private float currentY;
     private float currentVolume = -1;
     private float currentBriteness = -1;
     private int currentPosition = 0;
     private int totalPosition = 1000;
     public int mSceenWidth_2;
     public int mScreenHeight;
+    private boolean isPause = true;
     private BritenessUtils britenessUtils;
     private VolumeUtils volumeUtils;
     protected boolean mChangeVolume;
@@ -164,6 +163,7 @@ public class VideoController extends FrameLayout {
         }
         currentPosition = itemVideoView.getCurrentPosition();
         totalPosition = itemVideoView.getDuration();
+        Log.e("-----------", currentPosition+"" );
         mCurrent.setText(TimeUtils.stringForTime(currentPosition));
         mTotal.setText(TimeUtils.stringForTime(totalPosition));
         mProgress.setMax(totalPosition);
@@ -174,6 +174,7 @@ public class VideoController extends FrameLayout {
     MediaPlayer.OnErrorListener onErrorListener = new MediaPlayer.OnErrorListener() {
         @Override
         public boolean onError(MediaPlayer mp, int what, int extra) {
+            isPause = true;
             return false;
         }
     };
@@ -195,7 +196,7 @@ public class VideoController extends FrameLayout {
     MediaPlayer.OnCompletionListener onCompletionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mp) {
-
+            isPause = true;
             //移除当前的状态
             UIHandler.removeMessages(TIME_PROGRESS);
             UIHandler.removeMessages(SHOW_HIDE_CONTROLLER);
@@ -257,6 +258,7 @@ public class VideoController extends FrameLayout {
             switch (v.getId()) {
                 case R.id.start:
                     if (itemVideoView.isPlaying()) {
+                        isPause = true;
                         itemVideoView.pause();
                         changeStartImage(false);
                         UIHandler.removeMessages(TIME_PROGRESS);
@@ -267,6 +269,7 @@ public class VideoController extends FrameLayout {
                         } else {
                             start();
                         }
+                        isPause = false;
                         changeStartImage(true);
                         UIHandler.sendEmptyMessageDelayed(SHOW_HIDE_CONTROLLER, SHOW_HIDE_DURATION);
                         UIHandler.sendEmptyMessage(TIME_PROGRESS);
@@ -483,6 +486,30 @@ public class VideoController extends FrameLayout {
         itemVideoView.setVideoPath(videoUrl);
         Glide.with(mContext).load(videoPic).into(mThumb);
     }
+
+
+    public void onResume() {
+        if (itemVideoView != null && currentPosition > 0 && !isPause) {
+            itemVideoView.start();
+            itemVideoView.seekTo(currentPosition);
+        }
+
+    }
+
+    public void onStop() {
+        if (itemVideoView != null && itemVideoView.isPlaying()) {
+            itemVideoView.pause();
+        }
+    }
+
+
+    public void onDestroy() {
+        if (itemVideoView != null) {
+            itemVideoView.stopPlayback();
+            itemVideoView = null;
+        }
+    }
+
 
     //展示当前的进度
     protected Dialog mProgressDialog;

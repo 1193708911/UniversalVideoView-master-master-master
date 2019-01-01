@@ -20,11 +20,27 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initView();
     }
-
     private void initView() {
-        mVideView = (VideoController) findViewById(R.id.videView);
-
+        mVideView =findViewById(R.id.videView);
         mVideView.setUpVideoUrl(VIDEO_URL, VIDEO_PIC);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mVideView.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mVideView.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mVideView.onDestroy();
     }
 
     @Override
