@@ -3,8 +3,6 @@ package com.ssports.video;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
 
 import com.example.admin.videocontroller.R;
 import com.ssports.video.controller.VideoController;
@@ -31,26 +29,30 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        super.onResume();
         mVideView.onResume();
+        super.onResume();
+
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
         mVideView.onPause();
+        super.onPause();
+
     }
 
     @Override
     protected void onStop() {
-        super.onStop();
         mVideView.onStop();
+        super.onStop();
+
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         mVideView.onDestroy();
+        super.onDestroy();
+
     }
 
     @Override

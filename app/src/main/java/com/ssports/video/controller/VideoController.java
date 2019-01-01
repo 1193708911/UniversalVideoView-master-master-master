@@ -6,11 +6,9 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.MediaPlayer;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -484,7 +482,6 @@ public class VideoController extends FrameLayout {
     }
 
 
-
     //展示当前的进度
     protected Dialog mProgressDialog;
     protected ProgressBar mDialogProgressBar;
@@ -573,7 +570,7 @@ public class VideoController extends FrameLayout {
     public void showBritenessDialog(float deltaY, int volumePercent) {
         if (mBritenessDialog == null) {
             View localView = LayoutInflater.from(getContext()).inflate(R.layout.jc_volume_dialog, null);
-            mDialogBritenessProgressBar = ((ProgressBar) localView.findViewById(R.id.volume_progressbar));
+            mDialogBritenessProgressBar =  localView.findViewById(R.id.volume_progressbar);
             mBritenessDialog = new Dialog(getContext(), R.style.jc_style_dialog_progress);
             mBritenessDialog.setContentView(localView);
             mBritenessDialog.getWindow().addFlags(8);
@@ -599,29 +596,15 @@ public class VideoController extends FrameLayout {
     }
 
 
-   @Override
+    @Override
     protected Parcelable onSaveInstanceState() {
-        Bundle extralBundle = new Bundle();
-        Log.e("----", itemVideoView.getCurrentPosition()+"" );
         if (itemVideoView != null && itemVideoView.isPlaying()) {
             currentPosition = itemVideoView.getCurrentPosition();
-            extralBundle.putBoolean("isPause", isPause);
-            extralBundle.putInt("currentPosition", currentPosition);
-            return extralBundle;
+            isPause = false;
         }
         return super.onSaveInstanceState();
 
     }
-
-    @Override
-    protected void onRestoreInstanceState(Parcelable state) {
-        super.onRestoreInstanceState(state);
-        Bundle extralBundler = (Bundle) state;
-        isPause = extralBundler.getBoolean("isPause");
-        currentPosition = extralBundler.getInt("currentPosition", 0);
-    }
-
-
 
 
     public void onResume() {
@@ -637,8 +620,6 @@ public class VideoController extends FrameLayout {
     public void onPause() {
         if (itemVideoView != null && itemVideoView.isPlaying()) {
             currentPosition = itemVideoView.getCurrentPosition();
-
-            Log.e("-------", "onPause: "+itemVideoView.getCurrentPosition() );
         }
     }
 
@@ -658,5 +639,8 @@ public class VideoController extends FrameLayout {
             itemVideoView = null;
         }
     }
+
+
+
 
 }
